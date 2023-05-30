@@ -11,7 +11,7 @@ your_B2c_Domain_Name na domain name tenanta B2C
         PublicPolicyUri="http://your_B2c_Domain_Name.onmicrosoft.com/B2C_S2S_TEST">
 <!--  This file contains definition of S2S Policy-->
   <BasePolicy>
-    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <TenantId>your_B2c_Domain_Name.onmicrosoft.com</TenantId>
     <!-- Inherits from -->
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
