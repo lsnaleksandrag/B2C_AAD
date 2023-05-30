@@ -1,3 +1,8 @@
+przed wgraniem trzeba zmienic po wyszukaniu 
+your_B2c_Domain_Name na domain name tenanta B2C
+{AADtenant} na tenant ID AAD tenanta
+B2C_1A_B2CAppSecret na nazwe policy którą można znależć w B2c tenancie pod Azure B2C > Identity Experience Framework > Policy Keys powinna to byc nazwa apki utworzonej na tenancie AAD
+
 <TrustFrameworkPolicy
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -5,7 +10,7 @@
         PolicySchemaVersion="0.3.0.0"
         TenantId="lsnb2c.onmicrosoft.com"
         PolicyId="B2C_1A_TrustFrameworkBase"
-        PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_1A_TrustFrameworkBase">
+        PublicPolicyUri="http://your_B2c_Domain_Name/B2C_1A_TrustFrameworkBase">
 
   <BuildingBlocks>
     <!--    Claims used in all policies-->
@@ -549,7 +554,7 @@
           <Description>Login with your AD account</Description>
           <Protocol Name="OpenIdConnect"/>
           <Metadata>
-            <Item Key="METADATA">https://login.microsoftonline.com/f6b3d17c-afa0-4ff6-8c1f-3efecf2fd8ca/v2.0/.well-known/openid-configuration</Item>
+            <Item Key="METADATA">https://login.microsoftonline.com/{AADtenant}/v2.0/.well-known/openid-configuration</Item>
             <Item Key="client_id">f40e15a6-9994-44c4-9afa-f256dffb60da</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
@@ -597,8 +602,8 @@
           <Protocol Name="OpenIdConnect" />
           <Metadata>
             <Item Key="ProviderName">https://sts.windows.net/</Item>
-            <Item Key="METADATA">https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration</Item>
-            <Item Key="authorization_endpoint">https://login.microsoftonline.com/{tenant}/oauth2/token</Item>
+            <Item Key="METADATA">https://login.microsoftonline.com/{AADtenant}/.well-known/openid-configuration</Item>
+            <Item Key="authorization_endpoint">https://login.microsoftonline.com/{AAdtenant}/oauth2/token</Item>
             <Item Key="response_types">id_token</Item>
             <Item Key="response_mode">query</Item>
             <Item Key="scope">email openid</Item>
