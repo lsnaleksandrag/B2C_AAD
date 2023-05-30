@@ -1,11 +1,14 @@
+przed wgraniem trzeba zmienic po wyszukaniu 
+your_B2c_Domain_Name na domain name tenanta B2C
+
 <TrustFrameworkPolicy
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
-        TenantId="lsnb2c.onmicrosoft.com"
+        TenantId="your_B2c_Domain_Name.onmicrosoft.com"
         PolicyId="B2C_1A_B2C_S2S_TEST"
-        PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_S2S_TEST">
+        PublicPolicyUri="http://your_B2c_Domain_Name.onmicrosoft.com/B2C_S2S_TEST">
 <!--  This file contains definition of S2S Policy-->
   <BasePolicy>
     <TenantId>lsnb2c.onmicrosoft.com</TenantId>
