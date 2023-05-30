@@ -546,11 +546,11 @@ B2C_1A_B2CAppSecret na nazwe policy którą można znależć w B2c tenancie pod 
     -->
   <ClaimsProviders>
     <ClaimsProvider>
-      <Domain>LSN</Domain>
-      <DisplayName>Login using LSN</DisplayName>
+      <Domain>Ergo Hestia</Domain>
+      <DisplayName>Login using Ergo Hestia</DisplayName>
       <TechnicalProfiles>
-        <TechnicalProfile Id="AADLSN-OpenIdConnect">
-          <DisplayName>LSN AD Member</DisplayName>
+        <TechnicalProfile Id="AADEH-OpenIdConnect">
+          <DisplayName>EH AD Member</DisplayName>
           <Description>Login with your AD account</Description>
           <Protocol Name="OpenIdConnect"/>
           <Metadata>
@@ -563,7 +563,7 @@ B2C_1A_B2CAppSecret na nazwe policy którą można znależć w B2c tenancie pod 
             <Item Key="UsePolicyInRedirectUri">false</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="B2C_1A_LsnB2cAppSecret"/>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_B2CAppSecret"/>
           </CryptographicKeys>
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="sessionId" PartnerClaimType="sess"/>
@@ -1165,13 +1165,13 @@ B2C_1A_B2CAppSecret na nazwe policy którą można znależć w B2c tenancie pod 
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
           <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="LSNExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="EHExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="LocalAccountSigninEmailExchange" />
           </ClaimsProviderSelections>
         </OrchestrationStep>
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="LSNExchange" TechnicalProfileReferenceId="AADLSN-OpenIdConnect" />
+            <ClaimsExchange Id="EHExchange" TechnicalProfileReferenceId="AADEH-OpenIdConnect" />
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
