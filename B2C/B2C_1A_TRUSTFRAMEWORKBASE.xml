@@ -8,7 +8,7 @@ B2C_1A_B2CAppSecret na nazwe policy którą można znależć w B2c tenancie pod 
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
-        TenantId="lsnb2c.onmicrosoft.com"
+        TenantId="your_B2c_Domain_Name.onmicrosoft.com"
         PolicyId="B2C_1A_TrustFrameworkBase"
         PublicPolicyUri="http://your_B2c_Domain_Name/B2C_1A_TrustFrameworkBase">
 
