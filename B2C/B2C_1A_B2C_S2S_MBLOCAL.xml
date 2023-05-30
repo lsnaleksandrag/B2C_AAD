@@ -1,6 +1,9 @@
+przed wgraniem trzeba zmienic po wyszukaniu 
+your_B2c_Domain_Name na domain name tenanta B2C
+
 <TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="lsnb2c.onmicrosoft.com" PolicyId="B2C_1A_B2C_S2S_MBLOCAL" PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_S2S_MBLOCAL" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" TenantObjectId="38d58090-7896-4da6-9ca1-e48692a090e0">
   <BasePolicy>
-    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <TenantId>your_B2c_Domain_Name.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
