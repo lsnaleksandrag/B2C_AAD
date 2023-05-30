@@ -1,0 +1,166 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="lsnb2c.onmicrosoft.com" PolicyId="B2C_1A_MSTEAMS_MBLOCAL" PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_1A_MSTEAMS_MBLOCAL" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" TenantObjectId="38d58090-7896-4da6-9ca1-e48692a090e0">
+  <BasePolicy>
+    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="policyName">
+        <DisplayName>Policy name</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="sessionId">
+        <DisplayName>User's internal session ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="sess" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <!-- Seems default value output claims do not work with this technical profile -->
+    <!-- Seems output claims transformations does not work with this technical profile -->
+    <ClaimsProvider>
+      <DisplayName>ID token hint claims provider</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="IdTokenHint_ExtractClaims">
+          <DisplayName>ID token hint technical profile</DisplayName>
+          <Protocol Name="None" />
+          <Metadata>
+            <Item Key="METADATA">https://login.microsoftonline.com/9ed020ce-6cef-4b35-89cc-8bfb5d108748/v2.0/.well-known/openid-configuration</Item>
+            <Item Key="issuer">https://login.microsoftonline.com/9ed020ce-6cef-4b35-89cc-8bfb5d108748/v2.0</Item>
+            <Item Key="IdTokenAudience">68734d47-a060-4d29-bcc8-8d566f580155</Item>
+          </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid" />
+            <!-- Does not work -->
+            <!-- <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="ecomcttest.onmicrosoft.com" AlwaysUseDefaultValue="true" /> -->
+          </OutputClaims>
+          <!-- Does not work -->
+          <!-- <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+          </OutputClaimsTransformations> -->
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Had to include claims transformation claims provider due to 'IdTokenHint_ExtractClaims' limitations when it comes to default values and output claims transformations -->
+      <DisplayName>Default values and user alternative security ID claims provider</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SupplyDefaultValuesAndCreateUserAlternativeSecurityIdTechnicalProfile">
+          <DisplayName>Default values and user alternative security ID technical profile</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="ecomcttest.onmicrosoft.com" AlwaysUseDefaultValue="true" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Create user internal session by calling external API claims provider</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="CreateUserInternalSessionByCallingExternalApiTechnicalProfile">
+          <DisplayName>Create user internal session by calling external API technical profile</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://eh-sso-mb-local.azure-api.net/gateway/token/user</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentUsername" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentPassword" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="policyName" DefaultValue="{Policy:PolicyId}" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="platformAccountOid" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="sessionId" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Persist user internal session ID in AAD B2C session -->
+      <DisplayName>Session management</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SM-AAD">
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="sessionId" />
+          </PersistedClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Include user internal session ID in refresh token -->
+      <DisplayName>Refresh token journey</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="RefreshTokenReadAndSetup">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="sessionId" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <UserJourneys>
+    <UserJourney Id="MsTeamsIntegration">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="GetClaims" CpimIssuerTechnicalProfileReferenceId="IdTokenHint_ExtractClaims" />
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SupplyDefaultValuesAndCreateUserAlternativeSecurityIdTechnicalProfile" TechnicalProfileReferenceId="SupplyDefaultValuesAndCreateUserAlternativeSecurityIdTechnicalProfile" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AAD-UserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CreateUserInternalSessionByCallingExternalApiTechnicalProfile" TechnicalProfileReferenceId="CreateUserInternalSessionByCallingExternalApiTechnicalProfile" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+  </UserJourneys>
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="MsTeamsIntegration" />
+    <Endpoints>
+      <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
+    </Endpoints>
+    <UserJourneyBehaviors>
+      <SingleSignOn Scope="Tenant" EnforceIdTokenHintOnLogout="true" />
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="26fd1108-cb53-43a4-8d98-7a30615ed1fc" DeveloperMode="true" ClientEnabled="true" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <JourneyFraming Enabled="true" Sources="https://teams.microsoft.com" />
+      <ScriptExecution>Allow</ScriptExecution>
+    </UserJourneyBehaviors>
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <InputClaims>
+        <!-- You have to reference claims having their value set by ID token hint query parameter here -->
+        <!-- https://learn.microsoft.com/en-us/azure/active-directory-b2c/id-token-hint -->
+        <InputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid" />
+        <!-- You do not need to reference other claims here -->
+        <!-- <InputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="ecomcttest.onmicrosoft.com" AlwaysUseDefaultValue="true" />
+        <InputClaim ClaimTypeReferenceId="alternativeSecurityId" /> -->
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="sessionId" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
