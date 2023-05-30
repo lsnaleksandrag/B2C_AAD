@@ -1,13 +1,18 @@
+przed wgraniem trzeba zmienic po wyszukaniu 
+your_B2c_Domain_Name na domain name tenanta B2C
+{AADtenant} na tenant ID AAD tenanta
+ b2c-extensions-app trzeba dodac clientid aplikacji b2c-extensions-app ktory automatycznie powinien sie stworzyc w tenancie b2c
+
 <TrustFrameworkPolicy
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
-        TenantId="lsnb2c.onmicrosoft.com"
+        TenantId="your_B2c_Domain_Name.onmicrosoft.com"
         PolicyId="B2C_1A_TrustFrameworkExtensions"
-        PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+        PublicPolicyUri="http://your_B2c_Domain_Name.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
   <BasePolicy>
-    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <TenantId>your_B2c_Domain_Name.onmicrosoft.com</TenantId>
     <!-- Inherits from -->
     <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
   </BasePolicy>
@@ -19,14 +24,14 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">db49928a-4b02-4e20-8a78-dd6c6d6ae447</Item>
-            <Item Key="IdTokenAudience">818ba8b0-4f2d-4189-9610-517d65f828ba</Item>
+            <Item Key="client_id" b2c-extensions-app</Item>
+            <Item Key="IdTokenAudience"> b2c-extensions-app</Item>
           </Metadata>
           <InputClaims>
             <!-- ID of ProxyIdentityExperienceFramework -->
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="db49928a-4b02-4e20-8a78-dd6c6d6ae447" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="b2c-extensions-app" />
             <!-- ID of IdentityExperienceFramework -->
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="818ba8b0-4f2d-4189-9610-517d65f828ba" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="b2c-extensions-app" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
