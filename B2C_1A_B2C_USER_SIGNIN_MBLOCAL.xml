@@ -1,0 +1,202 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="lsnb2c.onmicrosoft.com" PolicyId="B2C_1A_B2C_USER_SIGNIN_MBLOCAL" PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_USER_SIGNIN_MBLOCAL" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" TenantObjectId="38d58090-7896-4da6-9ca1-e48692a090e0">
+  <BasePolicy>
+    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="policyName">
+        <DisplayName>Policy name</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="platformAccountOid">
+        <DisplayName>User's local account object ID</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="sessionId">
+        <DisplayName>User's internal session ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="sess" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+      <ClaimType Id="identityProviderAccessToken">
+        <DisplayName>Access token from the identity provider</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="idpacc" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+    </ClaimsSchema>
+    <ClaimsTransformations>
+      <ClaimsTransformation Id="CreateAzureADIdentityProvider" TransformationMethod="ParseDomain">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="userPrincipalName" TransformationClaimType="emailAddress" />
+        </InputClaims>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="identityProvider" TransformationClaimType="domain" />
+        </OutputClaims>
+      </ClaimsTransformation>
+      <ClaimsTransformation Id="CreateAlternativeSecurityId" TransformationMethod="CreateAlternativeSecurityId">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="socialIdpUserId" TransformationClaimType="key" />
+          <InputClaim ClaimTypeReferenceId="identityProvider" TransformationClaimType="identityProvider" />
+        </InputClaims>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="alternativeSecurityId" TransformationClaimType="alternativeSecurityId" />
+        </OutputClaims>
+      </ClaimsTransformation>
+    </ClaimsTransformations>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <Domain>ecommb.onmicrosoft.com</Domain>
+      <DisplayName>Organization account</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AzureADProfile_issueAADtoken">
+          <DisplayName>Azure Active Directory OAuth2</DisplayName>
+          <Protocol Name="OAuth2" />
+          <OutputTokenFormat>JWT</OutputTokenFormat>
+          <Metadata>
+            <Item Key="AccessTokenEndpoint">https://login.microsoftonline.com/23e38892-c4e4-411e-9125-6b3c1a3d13f1/oauth2/v2.0/token</Item>
+            <Item Key="authorization_endpoint">https://login.microsoftonline.com/23e38892-c4e4-411e-9125-6b3c1a3d13f1/oauth2/v2.0/authorize</Item>
+            <Item Key="BearerTokenTransmissionMethod">AuthorizationHeader</Item>
+            <Item Key="ClaimsEndpoint">https://graph.microsoft.com/v1.0/me</Item>
+            <Item Key="client_id">a97451ef-0ab4-4119-944e-3648eb0de3c2</Item>
+            <Item Key="IdTokenAudience">a97451ef-0ab4-4119-944e-3648eb0de3c2</Item>
+            <Item Key="DiscoverMetadataByTokenIssuer">true</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="response_types">code</Item>
+            <Item Key="scope">openid user.read</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="ValidTokenIssuerPrefixes">https://sts.windows.net/23e38892-c4e4-411e-9125-6b3c1a3d13f1</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_AadIntegrationClientSecret" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="socialIdpUserId" PartnerClaimType="id" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" PartnerClaimType="userPrincipalName" />
+            <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken" PartnerClaimType="{oauth2:access_token}" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateAzureADIdentityProvider" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>REST API</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="REST-CreateInternalSession">
+          <DisplayName>Create internal session for the user</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://eh-sso-mb-local.azure-api.net/gateway/token/user</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentUsername" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentPassword" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="policyName" DefaultValue="{Policy:PolicyId}" AlwaysUseDefaultValue="true" Required="true" />
+            <InputClaim ClaimTypeReferenceId="platformAccountOid" DefaultValue="{Claim:objectId}" AlwaysUseDefaultValue="true" Required="true" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="sessionId" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Session management</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SM-AAD">
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="sessionId" />
+          </PersistedClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Refresh token journey</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="RefreshTokenReadAndSetup">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="sessionId" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignInUsingAzureAD_issueAADtoken">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="AzureADExchangeWithAADtoken" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AzureADExchangeWithAADtoken" TechnicalProfileReferenceId="AzureADProfile_issueAADtoken" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RestApiCreateInternalSession" TechnicalProfileReferenceId="REST-CreateInternalSession" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+  </UserJourneys>
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpOrSignInUsingAzureAD_issueAADtoken" />
+    <Endpoints>
+      <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
+    </Endpoints>
+    <UserJourneyBehaviors>
+      <SingleSignOn Scope="Tenant" EnforceIdTokenHintOnLogout="true" />
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="26fd1108-cb53-43a4-8d98-7a30615ed1fc" DeveloperMode="true" ClientEnabled="true" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <ScriptExecution>Allow</ScriptExecution>
+    </UserJourneyBehaviors>
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="sessionId" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

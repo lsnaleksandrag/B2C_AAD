@@ -1,0 +1,149 @@
+<TrustFrameworkPolicy
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+        PolicySchemaVersion="0.3.0.0"
+        TenantId="lsnb2c.onmicrosoft.com"
+        PolicyId="B2C_1A_B2C_S2S_TEST"
+        PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_S2S_TEST">
+<!--  This file contains definition of S2S Policy-->
+  <BasePolicy>
+    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <!-- Inherits from -->
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <!-- Additional claims that are used in this policy, sessionId is defined in base file -->
+    <ClaimsSchema>
+      <!-- credentials used for REST Token Enrichment call -->
+      <ClaimType Id="Credentials">
+        <DisplayName>Credentials</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="platformClientId">
+        <DisplayName>Client credentials client ID</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="clientState">
+        <DisplayName>Client credentials flow custom state</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="sta" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <!-- Additional claim provider, JwtIssuer - extension of default provider declared in base file -->
+    <ClaimsProvider>
+      <DisplayName>Token Issuer</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="JwtIssuer">
+          <Metadata>
+            <Item Key="ClientCredentialsUserJourneyId">S2SJourney</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Load credentials -->
+      <DisplayName>Client credentials technical profiles</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ClientCredentials_Setup">
+          <DisplayName>Trustframework Policy Client Credentials Setup Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="Credentials" DefaultValue="OAuth 2.0 Client Credentials" AlwaysUseDefaultValue="true" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Get clientState from URL path, add clientState to JWT token -->
+      <DisplayName>Query string parameters claims provider</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="GetClaimValuesFromQueryStringParameters">
+          <DisplayName>Get claim values from query string parameters</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
+          </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="clientState" DefaultValue="{OAUTH-KV:client_state}" AlwaysUseDefaultValue="true" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <!-- Call Token Enrichment Point, add sessionId to JWT token-->
+      <DisplayName>REST API</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="REST-CreateServiceInternalSession">
+          <DisplayName>Create service internal session</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://osso-integration.lsn.io/gateway/token/service</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentUsername" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RestApiTokenEnrichmentPassword" />
+          </CryptographicKeys>
+          <InputClaims>
+            <!-- Claims that are in http request body -->
+            <InputClaim ClaimTypeReferenceId="platformClientId" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="clientState" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="sessionId" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <UserJourneys>
+    <!-- Ocean S2S journey for S2S -->
+    <UserJourney Id="S2SJourney">
+      <OrchestrationSteps>
+        <!-- 1. Set up credentials -->
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="ClientCredSetupExchange" TechnicalProfileReferenceId="ClientCredentials_Setup" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- 2. Retrieve clientState form URL path -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetClaimValuesFromQueryStringParameters" TechnicalProfileReferenceId="GetClaimValuesFromQueryStringParameters" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- 3. Call Token Enrichment Point -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RestApiCreateServiceInternalSession" TechnicalProfileReferenceId="REST-CreateServiceInternalSession" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- 4. Sign and sent JWT -->
+        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+  <RelyingParty>
+    <!-- Every call in this policy goes to S2SJourney by default -->
+    <DefaultUserJourney ReferenceId="S2SJourney" />
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <!-- Additional claims in final JWT token -->
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />
+        <OutputClaim ClaimTypeReferenceId="clientState" />
+        <OutputClaim ClaimTypeReferenceId="sessionId" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
