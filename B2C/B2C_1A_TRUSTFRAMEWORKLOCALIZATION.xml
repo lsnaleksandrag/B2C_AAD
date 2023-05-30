@@ -1,13 +1,18 @@
+przed wgraniem trzeba zmienic po wyszukaniu 
+your_B2c_Domain_Name na domain name tenanta B2C
+{AADtenant} na tenant ID AAD tenanta
+B2C_1A_B2CAppSecret na nazwe policy którą można znależć w 
+
 <TrustFrameworkPolicy
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
  PolicySchemaVersion="0.3.0.0"
- TenantId="lsnb2c.onmicrosoft.com"
+ TenantId="your_B2c_Domain_Name.onmicrosoft.com"
  PolicyId="B2C_1A_TrustFrameworkLocalization"
- PublicPolicyUri="http://lsnb2c.onmicrosoft.com/B2C_1A_TrustFrameworkLocalization">
+ PublicPolicyUri="http://your_B2c_Domain_Name.onmicrosoft.com/B2C_1A_TrustFrameworkLocalization">
   <BasePolicy>
-    <TenantId>lsnb2c.onmicrosoft.com</TenantId>
+    <TenantId>your_B2c_Domain_Name.onmicrosoft.com</TenantId>
     <!-- Inherits from -->
     <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
   </BasePolicy>
@@ -88,7 +93,7 @@
           <LocalizedString ElementType="UxElement" StringId="unknown_error">We are having trouble signing you in. Please try again later.</LocalizedString>
           <!-- Uncomment the remember_me only if the keep me signed in is activated.
           <LocalizedString ElementType="UxElement" StringId="remember_me">Keep me signed in</LocalizedString> -->
-          <LocalizedString ElementType="ClaimsProvider" StringId="LSNExchange">LSN</LocalizedString>
+          <LocalizedString ElementType="ClaimsProvider" StringId="ErgoExchange">ErgoHestia</LocalizedString>
           <LocalizedString ElementType="ErrorMessage" StringId="ResourceOwnerFlowInvalidCredentials">Your password is incorrect.</LocalizedString>
           <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfInvalidPassword">Your password is incorrect.</LocalizedString>
           <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfPasswordExpired">Your password has expired.</LocalizedString>
@@ -242,7 +247,7 @@
         <LocalizedStrings>
           <LocalizedString ElementType="UxElement" StringId="intro">Sign in</LocalizedString>
           <LocalizedString ElementType="ClaimsProvider" StringId="LocalAccountSigninEmailExchange">Local Account Signin</LocalizedString>
-          <LocalizedString ElementType="ClaimsProvider" StringId="LSNExchange">LSN</LocalizedString>
+          <LocalizedString ElementType="ClaimsProvider" StringId="ErgoExchange">ErgoHestia</LocalizedString>
         </LocalizedStrings>
       </LocalizedResources>
 
