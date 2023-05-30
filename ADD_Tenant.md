@@ -3,8 +3,8 @@
 W głownym menu azure klikamy App Registration i New Registration
 Rejestrujemy aplikacje z opcjami<br />
   a) Supported account types: `Accounts in this organizational directory only (Single tenant)`<br />
-  b) Redirect URI (optional): wybierz WEB and wpisz url z stworzonej apki z tenanta B2C <br />
-`szukam/oauth2/authresp`
+  b) Redirect URI (optional): wybierz WEB and wpisz url tenanta B2C wedlug poniższego szablonu <br />
+`https://${your-tenant-name}.b2clogin.com/${your-tenant-id}/oauth2/authresp`
 Kliknij Register na dole strony 
 ## 2. Dodawanie sekretu do aplikacji
 W uprzednio stworzonej aplikacji klikamy w Cerfitifcate & Secrets 
