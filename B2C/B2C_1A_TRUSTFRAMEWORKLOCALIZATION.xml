@@ -1,7 +1,6 @@
 przed wgraniem trzeba zmienic po wyszukaniu 
 your_B2c_Domain_Name na domain name tenanta B2C
 {AADtenant} na tenant ID AAD tenanta
-B2C_1A_B2CAppSecret na nazwe policy którą można znależć w 
 
 <TrustFrameworkPolicy
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
